@@ -3,7 +3,8 @@
 PARALLELISM = 20
 URL = https://www2.census.gov/geo/tiger/TIGER2023/ROADS/
 STATE_FIPS_CODES_URL = https://www2.census.gov/geo/docs/reference/state.txt
-COUNTY_FIPS_CODES_BASEURL = https://www2.census.gov/geo/docs/reference/codes2020/cou # /st06_ca_cou2020.txt
+COUNTY_FIPS_CODES_BASEURL = https://www2.census.gov/geo/docs/reference/codes2020/cou
+# /st06_ca_cou2020.txt
 
 # Include these feature codes, full list at:
 # https://www2.census.gov/geo/pdfs/reference/mtfccs2022.pdf
@@ -53,7 +54,7 @@ states.json:
 	invoke-webrequest $(STATE_FIPS_CODES_URL) | select-object -expand content | convertfrom-csv -delimiter '|' | convertto-json | set-content $@
 
 counties.json:	states.json
-	get-content states.json | convertfrom-json | % -throttle $(PARALLELISM) -parallel { invoke-webrequest "$(COUNTY_FIPS_CODES_BASEURL)/st$$($$_.STATE)_$$($$_.STUSAB.ToLower())_cou2020.txt" | select-object -expand content | convertfrom-csv -delimiter '|' } | convertto-json | set-content $@
+	get-content states.json | convertfrom-json | %{ $$url = "$(COUNTY_FIPS_CODES_BASEURL)/st$$($$_.STATE)_$$($$_.STUSAB.ToLower())_cou2020.txt"; write-host "Fetching $$url"; invoke-webrequest $$url | select-object -expand content | convertfrom-csv -delimiter '|' } | convertto-json | set-content $@
 
 download:	downloadcodes
 	invoke-webrequest $(URL) | select-object -expand Links | ?{ $$_.href -like '*.zip' } | % -throttle $(PARALLELISM) -parallel { if (-not (test-path $$_.href)) { invoke-webrequest "$(URL)/$$($$_.href)" -outfile $$_.href }; if (-not (test-path $$_.href.TrimEnd('.zip'))) { new-item -type Directory $$_.href.TrimEnd('.zip'); unzip -u $$_.href -d $$_.href.TrimEnd('.zip') } }
