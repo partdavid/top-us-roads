@@ -7,7 +7,7 @@ three reports:
 
 - [`top-100.txt`](./top-100.txt) and [`top-50.txt`](./top-50.txt) --
   Lists of the top 100 and top 50 street names
-- [`allstreets.csv.gz`] -- A gzip-compressed CSV file of all the
+- [`allstreets.csv.gz`](./allstreets.csv.gz) -- A gzip-compressed CSV file of all the
   streets in the U.S., with county, state and original and sanitized
   versions of the street names
 
